@@ -5,16 +5,22 @@
         <h2>Welcome back,</h2>
         <label>
           <span>Email</span>
-          <input v-model="loginForm.email" type="email" />
-          <!-- <div v-if="$v.loginForm.email.$error" class="error">{{ $v.loginForm.email.$message }}</div> -->
+          <input type="email" v-model="loginForm.email" @focus="$v.loginForm.email.$touch()">
+           <div v-if="$v.loginForm.email.$error && $v.loginForm.email.$dirty" class="error">{{ $v.loginForm.email.$message }}</div>
+           <div v-if="!$v.loginForm.email.message" class="error">{{ $v.loginForm.email.$message }}</div>
         </label>
         <label>
           <span>Password</span>
-          <input v-model="loginForm.password" type="password" />
-          <!-- <div v-if="$v.loginForm.password.$error" class="error">{{ $v.loginForm.password.$message }}</div> -->
+          <input v-model.lazy="loginForm.password" type="password" />
+          <div v-if="$v.loginForm.password.$error" class="error">{{ $v.loginForm.password.$message }}</div>
+          <!-- <div v-if="$v.loginForm.password.$dirty"> -->
+          <div v-if="!$v.loginForm.password.required" class="error">Password is required.</div>
+          <div v-if="!$v.loginForm.password.minLength" class="error">Password must be at least 8 characters.</div>
+          <!-- </div> -->
+  
         </label>
         <p class="forgot-pass">Forgot password?</p>
-        <button type="submit" class="submit">Sign In</button>
+        <button type="submit" @click.prevent="login" class="submit">Sign In</button>
         <button type="button" class="fb-btn">Connect with <span>facebook</span></button>
       </div>
       <div class="sub-cont">
@@ -29,7 +35,7 @@
           </div>
           <div class="img__btn">
             <span class="m--up" @click="toggleSignup">Sign Up</span>
-            <span class="m--in" @click="toggleSignup">Sign In</span>
+            <span class="m--in" @click="toggleSignup" >Sign In</span>
           </div>
         </div>
         <!-- 注册 -->
@@ -47,7 +53,7 @@
             <span>Password</span>
             <input type="password" />
           </label>
-          <button type="button" @click="toggleSignup" class="submit">Sign Up</button>
+          <button type="button" @click="toggleSignup"  class="submit">Sign Up</button>
           <!-- <button type="button" class="fb-btn">Join with <span>facebook</span></button> -->
         </div>
       </div>
@@ -56,7 +62,8 @@
 </template>
 
 <script>
-import { required, email } from 'vuelidate/lib/validators';
+import { required, email ,minLength} from 'vuelidate/lib/validators';
+import axios from 'axios';
 export default {
   data() {
     return {
@@ -70,7 +77,7 @@ export default {
   validations: {
     loginForm: {
       email: { required, email },
-      password: { required }
+      password: { required,minLength: minLength(8) }
     }
   },
   mounted() {
@@ -87,6 +94,26 @@ export default {
       }
       // 表单验证通过，执行提交表单操作
       console.log('Submitted form:', this.loginForm);
+      axios.post('/api/login', this.loginForm)
+        .then(response => {
+          // 处理成功响应
+          console.log(response.data);
+        })
+        .catch(error => {
+          // 处理错误响应
+          console.error(error);
+        });
+    },
+    login() {
+      this.$v.loginForm.$touch(); // touch all fields to trigger validation
+      if (this.$v.loginForm.$invalid) {
+        // handle validation errors
+        this.$v.$reset(); // reset form validation state
+        this.loginForm.password = ''; // clear password field
+      } else {
+        // submit form data
+        this.submitForm()
+      }
     }
   }
 }
@@ -110,7 +137,7 @@ input,
 button {
   border: none;
   outline: none;
-  background: none;
+  // background: none;
   font-family: "Open Sans", Helvetica, Arial, sans-serif;
 }
 
@@ -130,7 +157,7 @@ button {
 }
 
 .form {
-  position: relative;
+  position: absolute;//relative
   width: 640px;
   height: 100%;
   transition: transform 1.2s ease-in-out;
@@ -349,5 +376,8 @@ input {
 .icon-link--twitter {
   left: auto;
   right: 5px;
+}
+div.error{
+  color: #c91515;
 }
 </style>
