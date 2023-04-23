@@ -1,5 +1,8 @@
 <template>
   <div>
+  <NavMenu/>
+  
+    <div class ="bg" style="padding-top: 60px">
     <div class="cont" ref="cont" :class="{ 's--signup': isSignup }">
       <div class="form sign-in" @submit.prevent="submitForm">
         <h2>Welcome back,</h2>
@@ -59,12 +62,17 @@
       </div>
     </div>
   </div>
+  </div>
 </template>
 
 <script>
+ import NavMenu from '@/components/NavMenu.vue';
 import { required, email ,minLength} from 'vuelidate/lib/validators';
 import axios from 'axios';
 export default {
+  components: {
+        NavMenu
+        },
   data() {
     return {
       isSignup: false,
@@ -118,7 +126,6 @@ export default {
   }
 }
 </script>
-
 <style lang="scss" scoped>
 *,
 *:before,
@@ -127,10 +134,15 @@ export default {
   margin: 0;
   padding: 0;
 }
-
+.bg{
+  width: 100%;
+  height: 100%;
+  font-family: "Open Sans", Helvetica, Arial, sans-serif;
+  background: #eff2f1;
+}
 body {
   font-family: "Open Sans", Helvetica, Arial, sans-serif;
-  background: #d9e8e0;
+  background: #eff2f1;
 }
 
 input,
@@ -154,6 +166,7 @@ button {
   height: 550px;
   margin: 0 auto 100px;
   background: #fff;
+  margin-top: 20px; /* 添加 20px 的上边距 */
 }
 
 .form {
@@ -380,4 +393,5 @@ input {
 div.error{
   color: #c91515;
 }
+
 </style>
